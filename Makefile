@@ -14,7 +14,6 @@ LISTENER_SRCS = src/listener/listener.c
 LISTENER_OBJS = $(LISTENER_SRCS:.c=.o)
 
 TARGETS = $(LISTENER_TARGET)
-ALL_OBJS = $(shell find -name *.o)
 
 all: clean $(TARGETS)
 
@@ -32,4 +31,4 @@ $(TARGETS):
 
 clean:
 	@echo "Cleaning..."
-	@$(RM) $(TARGETS) $(ALL_OBJS)
+	@$(RM) $(TARGETS) $(ALL_EXISTING_OBJS)
