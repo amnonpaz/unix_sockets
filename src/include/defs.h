@@ -22,6 +22,8 @@
 #define SOCKET_NAME_LEN(name) \
     MIN(strlen(name, SOCKET_NAME_MAX_LEN))
 
+#define ARRAY_LEN(arr) (sizeof(arr)/sizeof(arr[0]))
+
 #define MAX_BUFFER_LEN 4096
 
 #endif // __UNIX_DOMAIN_SOCKETS_DEMO_DEFS_H__
