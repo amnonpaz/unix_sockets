@@ -86,7 +86,7 @@ void destroy_socket(int sock, const char *path)
 /**
  * handle_client: Example on handling a client
  * connection - Receive a buffer, print the
- * incomming data and return "Got it" message.
+ * incoming data and return "Got it" message.
  * If the client sent us "TREM", then the program
  * will exit.
  *
@@ -108,7 +108,7 @@ int handle_client(int sock)
         return len;
     }
     
-    LOGI("Incomming message: %*s", len-1, buff);
+    LOGI("Incoming message: %.*s", len, buff);
 
     if (!strncmp(buff, TERM_CMD, MIN(TERM_CMD_LEN, len)))
         result = 1;
