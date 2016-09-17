@@ -31,7 +31,3 @@
 # Debug files
 *.dSYM/
 *.su
-
-# products
-listener
-client
