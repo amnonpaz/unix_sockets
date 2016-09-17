@@ -40,7 +40,7 @@ int create_socket(const char *path)
 {
     int res;
 
-    int sock = socket(PF_UNIX, SOCK_STREAM, 0);
+    int sock = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sock < 0) {
         LOGE("Failed creating a new socket");
         return sock;

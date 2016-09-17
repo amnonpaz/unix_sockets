@@ -22,7 +22,7 @@ int socket_open(const char *socket_name)
 {
     int res;
 
-    int sock = socket(PF_UNIX, SOCK_STREAM, 0);
+    int sock = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sock < 0)
         return -1;
 
