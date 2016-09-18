@@ -1,10 +1,12 @@
 .PHONY: all clean
 
 CC = gcc
-RM = rm -f
 CFLAGS = -g -Wall
+LD = gcc
 LDFLAGS =
-INCLUDES = -Isrc/include/ 
+
+INCLUDES = -Isrc/include/
+RM = rm -f
 
 EXTRA_CFLAG =
 
@@ -30,7 +32,7 @@ $(CLIENT_TARGET): $(CLIENT_OBJS)
 
 $(TARGETS): 
 	@echo "Linking $@..."
-	@$(CC) $(LDFLAGS) -o $@ $^
+	@$(LD) $(LDFLAGS) -o $@ $^
 
 %.o: %.c
 	@echo "Compiling $<"
