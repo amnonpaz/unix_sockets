@@ -53,4 +53,4 @@ $(STATIC_LIBS):
 
 clean:
 	@echo "Cleaning..."
-	@$(RM) $(EXECUTABLES) $(ALL_EXISTING_OBJS)
+	@$(RM) $(EXECUTABLES) $(STATIC_LIBS) $(ALL_EXISTING_OBJS)
