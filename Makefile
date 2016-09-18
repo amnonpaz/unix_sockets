@@ -4,6 +4,8 @@ CC = gcc
 CFLAGS = -g -Wall
 LD = gcc
 LDFLAGS =
+AR = ar
+ARFLAGS = rcs
 
 INCLUDES = -Isrc/include/
 RM = rm -f
@@ -20,19 +22,30 @@ CLIENT_TARGET = client
 CLIENT_SRCS = src/client/client_lib.c src/client/client.c
 CLIENT_OBJS = $(CLIENT_SRCS:.c=.o)
 
-TARGETS = $(LISTENER_TARGET) $(CLIENT_TARGET)
+## Client lib
+CLIENT_LIB_TARGET = client.a
+CLIENT_LIB_SRCS = src/client/client_lib.c
+CLIENT_LIB_OBJS = $(CLIENT_SRCS:.c=.o)
+
+EXECUTABLES = $(LISTENER_TARGET) $(CLIENT_TARGET)
+STATIC_LIBS = $(CLIENT_LIB_TARGET)
 ALL_EXISTING_OBJS = $(shell find -name *.o)
 
-all: clean $(TARGETS)
+all: clean $(EXECUTABLES) $(STATIC_LIBS)
 
 $(LISTENER_TARGET): EXTRA_CFLAGS+=-DSERVICE_NAME=\"LISTENER\"
 
 $(LISTENER_TARGET): $(LISTENER_OBJS)
 $(CLIENT_TARGET): $(CLIENT_OBJS)
+$(CLIENT_LIB_TARGET): $(CLIENT_LIB_OBJS)
 
-$(TARGETS): 
+$(EXECUTABLES):
 	@echo "Linking $@..."
 	@$(LD) $(LDFLAGS) -o $@ $^
+
+$(STATIC_LIBS):
+	@echo "Creating static lib $@..."
+	@$(AR) $(ARFLAGS) -o $@ $^
 
 %.o: %.c
 	@echo "Compiling $<"
@@ -40,4 +53,4 @@ $(TARGETS):
 
 clean:
 	@echo "Cleaning..."
-	@$(RM) $(TARGETS) $(ALL_EXISTING_OBJS)
+	@$(RM) $(EXECUTABLES) $(ALL_EXISTING_OBJS)
