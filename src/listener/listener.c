@@ -134,10 +134,12 @@ int run(int sock)
     while (1) {
         int client_socket = accept(sock, NULL, NULL);
         if (client_socket < 0) {
-            if (errno != EINTR)
+            if (errno != EINTR) {
+                LOGE("Failed accepting client (%d: %s)",
+                     errno, strerror(errno));
                 continue;
+            }
 
-            LOGE("Failed accepting client (%d: %s)", errno, strerror(errno));
             break;
         }
 
