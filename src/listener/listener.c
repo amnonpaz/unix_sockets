@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include <string.h>
 #include <errno.h>
@@ -12,6 +13,28 @@
 #define MAX_CLIENTS 10
 #define TERM_CMD "TERM"
 #define TERM_CMD_LEN (strlen(TERM_CMD))
+
+/**
+ * Global variable & accessors for marking
+ * and checking the lister state.
+ * There are only two state for this simple
+ * listener - Stopped & running, therefore
+ * the limited API.
+ */
+enum state {
+    STATE_STOPPED = 0,
+    STATE_RUNNING
+} listener_state;
+
+void set_state(enum state s)
+{
+   listener_state = s;
+}
+
+int is_running()
+{
+    return (listener_state == STATE_RUNNING);
+}
 
 /**
  * bind_address: Bind a path to a socket
@@ -96,7 +119,7 @@ void handle_client(int sock)
     const char gotit[] = "Got your message\n";
     int len, err;
 
-    while (1) {
+    while (is_running()) {
         len = read(sock, buff, MAX_BUFFER_LEN-1);
         if (len <= 0) {
             if (errno == ENOENT) {
@@ -131,7 +154,7 @@ void handle_client(int sock)
  */
 int run(int sock)
 {
-    while (1) {
+    while (is_running()) {
         int client_socket = accept(sock, NULL, NULL);
         if (client_socket < 0) {
             if (errno != EINTR) {
@@ -151,6 +174,29 @@ int run(int sock)
     return 0;
 }
 
+/**
+ * terminate: Handler for SIGTERM
+ */
+void terminate(int signum)
+{
+    LOGI("Terminating service");
+
+    set_state(STATE_STOPPED);
+}
+
+/**
+ * register_sigterm_handler: Registers the
+ * above handler in order to handle Ctrl-C
+ */
+void register_sigterm_handler()
+{
+    struct sigaction action;
+
+    memset(&action, 0, sizeof(struct sigaction));
+    action.sa_handler = terminate;
+    sigaction(SIGINT, &action, NULL);
+}
+
 int main(int argc, char *argv[])
 {
     char *path;
@@ -167,6 +213,9 @@ int main(int argc, char *argv[])
     sock = create_socket(path);
     if (sock < 0)
         return 1;
+
+    set_state(STATE_RUNNING);
+    register_sigterm_handler();
 
     run(sock);
 
