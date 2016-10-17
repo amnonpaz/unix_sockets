@@ -87,40 +87,41 @@ void destroy_socket(int sock, const char *path)
  * handle_client: Example on handling a client
  * connection - Receive a buffer, print the
  * incoming data and return "Got it" message.
- * If the client sent us "TREM", then the program
- * will exit.
- *
- * Returns: 0 - Continue
- *          1 - Terminate Listener
- *          < 0 - Error code
+ * If the client sent us "TREM", then the session
+ * will be over
  */
-int handle_client(int sock)
+void handle_client(int sock)
 {
     char buff[MAX_BUFFER_LEN];
     const char gotit[] = "Got your message\n";
-    int len;
-    int err, result = 0;
+    int len, err;
 
-    len = read(sock, buff, MAX_BUFFER_LEN-1);
-    if (len < 0) {
-        LOGE("Failed reading from client (%d: %s)",
-                 errno, strerror(errno));
-        return len;
-    }
+    while (1) {
+        len = read(sock, buff, MAX_BUFFER_LEN-1);
+        if (len <= 0) {
+            if (errno == ENOENT) {
+                LOGI("Client socket was closed by peer");
+            } else {
+                LOGE("Failed reading from client (%d: %s)",
+                     errno,
+                     errno ? strerror(errno) : "No input on socket");
+            }
+            return;
+        }
     
-    LOGI("Incoming message: %.*s", len, buff);
+        LOGI("Incoming message: %.*s", len, buff);
 
-    if (!strncmp(buff, TERM_CMD, MIN(TERM_CMD_LEN, len)))
-        result = 1;
+        err = write(sock, gotit, strlen(gotit));
+        if (err <= 0) {
+            LOGE("Failed writing to socket (%d: %s)",
+                 errno,
+                 errno ? strerror(errno) : "No data could be written to socket");
+            return;
+        }
 
-    err = write(sock, gotit, strlen(gotit));
-    if (err < 0) {
-        LOGE("Failed writing to socket (%d: %s)",
-             errno, strerror(errno));
-        return err;
+        if (!strncmp(buff, TERM_CMD, MIN(TERM_CMD_LEN, len)))
+            break;
     }
-
-    return result;
 }
 
 /**
@@ -130,9 +131,7 @@ int handle_client(int sock)
  */
 int run(int sock)
 {
-    int quit = 0;
-
-    while (!quit) {
+    while (1) {
         int client_socket = accept(sock, NULL, NULL);
         if (client_socket < 0) {
             if (errno != EINTR)
@@ -142,9 +141,7 @@ int run(int sock)
             break;
         }
 
-        quit = handle_client(client_socket) > 0 ? 1 : 0;
-        if (quit) 
-            LOGI("Got termination command, exiting");
+        handle_client(client_socket);
 
         close(client_socket);
     }
