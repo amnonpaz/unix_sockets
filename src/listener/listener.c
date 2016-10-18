@@ -119,6 +119,8 @@ void handle_client(int sock)
     const char gotit[] = "Got your message\n";
     int len, err;
 
+    LOGI("* Starting communication with a client *");
+
     while (is_running()) {
         len = read(sock, buff, MAX_BUFFER_LEN-1);
         if (len <= 0) {
@@ -145,6 +147,8 @@ void handle_client(int sock)
         if (!strncmp(buff, TERM_CMD, MIN(TERM_CMD_LEN, len)))
             break;
     }
+
+    LOGI("* Communication with client ended *");
 }
 
 /**
