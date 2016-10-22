@@ -11,8 +11,6 @@
 #include <defs.h>
 
 #define MAX_CLIENTS 10
-#define TERM_CMD "TERM"
-#define TERM_CMD_LEN (strlen(TERM_CMD))
 
 /**
  * Global variable & accessors for marking
@@ -143,9 +141,6 @@ void handle_client(int sock)
                  errno ? strerror(errno) : "No data could be written to socket");
             return;
         }
-
-        if (!strncmp(buff, TERM_CMD, MIN(TERM_CMD_LEN, len)))
-            break;
     }
 
     LOGI("* Communication with client ended *");
