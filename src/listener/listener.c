@@ -113,14 +113,14 @@ void destroy_socket(int sock, const char *path)
  */
 void handle_client(int sock)
 {
-    char buff[MAX_BUFFER_LEN];
-    const char gotit[] = "Got your message\n";
+    char buff_in[MAX_BUFFER_LEN];
+    char buff_out[MAX_BUFFER_LEN];
     int len, err;
 
     LOGI("* Starting communication with a client *");
 
     while (is_running()) {
-        len = read(sock, buff, MAX_BUFFER_LEN-1);
+        len = read(sock, buff_in, MAX_BUFFER_LEN-1);
         if (len <= 0) {
             if (errno == ENOENT) {
                 LOGI("Client socket was closed by peer");
@@ -132,9 +132,11 @@ void handle_client(int sock)
             return;
         }
     
-        LOGI("Incoming message: %.*s", len, buff);
+        LOGI("Incoming message: %.*s", len, buff_in);
 
-        err = write(sock, gotit, strlen(gotit));
+        snprintf(buff_out, MAX_BUFFER_LEN, "Recieved %d Bytes", len);
+
+        err = write(sock, buff_out, strlen(buff_out));
         if (err <= 0) {
             LOGE("Failed writing to socket (%d: %s)",
                  errno,
