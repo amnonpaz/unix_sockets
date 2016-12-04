@@ -1,7 +1,7 @@
 .PHONY: all clean
 
 CC = gcc
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -fPIC
 LD = gcc
 LDFLAGS =
 AR = ar
